@@ -17,6 +17,7 @@ class Mahasiswa extends Model
         'angkatan',
         'prodi_id', 
         'dosen_pembimbing_id',
+        'foto'
     ];
     
     public function prodi()

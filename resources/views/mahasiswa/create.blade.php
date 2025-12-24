@@ -5,7 +5,7 @@
 @section('content')
     <h2>Tambah Mahasiswa</h2>
 
-    <form method="POST" action="{{ route('mahasiswa.store') }}">
+    <form method="POST" action="{{ route('mahasiswa.store') }}" enctype="multipart/form-data">
         @csrf
         <div style="margin-bottom: 15px;">
             <label for="nim">NIM</label><br>
@@ -45,6 +45,12 @@
                     </option>
                 @endforeach
             </select>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="foto">Foto (opsional, maks 2MB: JPG, PNG)</label><br>
+            <input type="file" name="foto" id="foto" accept="image/*">
+            @error('foto')<div style="color: red;">{{ $message }}</div>@enderror
         </div>
 
         <button type="submit" class="btn">Simpan</button>

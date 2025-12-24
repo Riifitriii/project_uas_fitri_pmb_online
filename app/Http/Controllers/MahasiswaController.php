@@ -6,6 +6,7 @@ use App\Models\Mahasiswa;
 use App\Models\Prodi;
 use App\Models\Dosen;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MahasiswaController extends Controller
 {
@@ -25,7 +26,7 @@ class MahasiswaController extends Controller
     {
         $prodis = Prodi::all();
         $dosens = Dosen::all();
-        return view('mahasiswa.create', compact('prodi', 'dosen'));
+        return view('mahasiswa.create', compact('prodis', 'dosens'));
     }
 
     /**
@@ -39,6 +40,7 @@ class MahasiswaController extends Controller
             'angkatan' => 'required|string|max:4',
             'prodi_id' => 'nullable|exists:prodi,id',
             'dosen_pembimbing_id' => 'nullable|exists:dosen,id',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'nim.unique' => 'NIM sudah terdaftar.',
             'nim.required' => 'NIM wajib diisi.',
@@ -46,9 +48,21 @@ class MahasiswaController extends Controller
             'angkatan.required' => 'Angkatan wajib diisi.',
             'prodi_id.exists' => 'Program studi tidak valid.',
             'dosen_pembimbing_id.exists' => 'Dosen pembimbing tidak valid.',
+            'foto.image' => 'File harus berupa gambar.',
+            'foto.mimes' => 'Foto harus bertipe: jpeg, png, jpg, gif.',
+            'foto.max' => 'Ukuran foto maksimal 2 MB.',
         ]);
 
-        Mahasiswa::create($request->all());
+        $data = $request->except('foto');
+
+        if ($request->hasFile('foto')) {
+            $file = $request->file('foto');
+            $filename = 'mahasiswa_' . time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/mahasiswa', $filename);
+            $data['foto'] = $filename;
+        }
+
+        Mahasiswa::create($data);
 
         return redirect()->route('mahasiswa.index')
                          ->with('success', 'Data mahasiswa berhasil ditambahkan.');
@@ -67,9 +81,9 @@ class MahasiswaController extends Controller
      */
     public function edit(Mahasiswa $mahasiswa)
     {
-        $prodi = Prodi::all();
-        $dosen = Dosen::all();
-        return view('mahasiswa.edit', compact('mahasiswa', 'prodi', 'dosen'));
+        $prodis = Prodi::all();
+        $dosens = Dosen::all();
+        return view('mahasiswa.edit', compact('mahasiswa', 'prodis', 'dosens'));
     }
 
     /**
@@ -83,14 +97,32 @@ class MahasiswaController extends Controller
             'angkatan' => 'required|string|max:4',
             'prodi_id' => 'nullable|exists:prodi,id',
             'dosen_pembimbing_id' => 'nullable|exists:dosen,id',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'nim.unique' => 'NIM sudah terdaftar.',
             'nim.required' => 'NIM wajib diisi.',
             'nama.required' => 'Nama wajib diisi.',
             'angkatan.required' => 'Angkatan wajib diisi.',
+            'foto.image' => 'File harus berupa gambar.',
+            'foto.mimes' => 'Foto harus bertipe: jpeg, png, jpg, gif.',
+            'foto.max' => 'Ukuran foto maksimal 2 MB.',
         ]);
 
-        $mahasiswa->update($request->all());
+        $data = $request->except('foto');
+
+        if ($request->hasFile('foto')) {
+            // Hapus foto lama jika ada
+            if ($mahasiswa->foto) {
+                Storage::delete('public/mahasiswa/' . $mahasiswa->foto);
+            }
+
+            $file = $request->file('foto');
+            $filename = 'mahasiswa_' . time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/mahasiswa', $filename);
+            $data['foto'] = $filename;
+        }
+
+        $mahasiswa->update($data);
 
         return redirect()->route('mahasiswa.index')
                          ->with('success', 'Data mahasiswa berhasil diperbarui.');
@@ -101,6 +133,11 @@ class MahasiswaController extends Controller
      */
     public function destroy(Mahasiswa $mahasiswa)
     {
+        // Hapus foto jika ada
+        if ($mahasiswa->foto) {
+            Storage::delete('public/mahasiswa/' . $mahasiswa->foto);
+        }
+
         $mahasiswa->delete();
 
         return redirect()->route('mahasiswa.index')

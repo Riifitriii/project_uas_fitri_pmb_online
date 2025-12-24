@@ -9,6 +9,7 @@
     <table>
         <thead>
             <tr>
+                <th>Foto</th>
                 <th>NIM</th>
                 <th>Nama</th>
                 <th>Angkatan</th>
@@ -20,6 +21,15 @@
         <tbody>
             @forelse($mahasiswa as $m)
             <tr>
+                <td style="text-align: center; vertical-align: middle;">
+                    @if($m->foto)
+                        <img src="{{ asset('storage/mahasiswa/' . $m->foto) }}"
+                             alt="Foto {{ $m->nama }}"
+                             style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                    @else
+                        –
+                    @endif
+                </td>
                 <td>{{ $m->nim }}</td>
                 <td>{{ $m->nama }}</td>
                 <td>{{ $m->angkatan }}</td>
@@ -27,7 +37,7 @@
                 <td>{{ $m->dosenPembimbing?->nama ?? '–' }}</td>
                 <td>
                     <a href="{{ route('mahasiswa.edit', $m->id) }}">Edit</a>
-                    <form action="{{ route('mahasiswa.destroy', $m->id) }}" method="POST" style="display:inline">
+                    <form action="{{ route('mahasiswa.destroy', $m->id) }}" method="POST" style="display:inline;">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger" onclick="return confirm('Hapus data ini?')">Hapus</button>
@@ -36,7 +46,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="6" style="text-align: center;">Belum ada data mahasiswa.</td>
+                <td colspan="7" style="text-align: center;">Belum ada data mahasiswa.</td>
             </tr>
             @endforelse
         </tbody>

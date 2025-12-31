@@ -1,0 +1,47 @@
+<x-app-layout>
+    <x-slot name="title">Dashboard Prodi</x-slot>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800">Daftar Program Studi</h2>
+    </x-slot>
+
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white p-6 rounded shadow">
+                <a href="{{ route('prodi.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded mb-4 inline-block">
+                    Tambah Prodi
+                </a>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode Prodi</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Prodi</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse($prodi as $p)
+                            <tr>
+                                <td class="px-4 py-3">{{ $p->kode_prodi }}</td>
+                                <td class="px-4 py-3">{{ $p->nama_prodi }}</td>
+                                <td class="px-4 py-3">
+                                    <a href="{{ route('prodi.edit', $p->id) }}" class="text-blue-600 hover:underline">Edit</a>
+                                    <form action="{{ route('prodi.destroy', $p->id) }}" method="POST" class="inline ml-2">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('Hapus prodi ini?')">Hapus</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="3" class="px-4 py-6 text-center text-gray-500">Belum ada data prodi.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>

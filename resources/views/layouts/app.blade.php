@@ -1,103 +1,36 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>@yield('title')</title>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            margin: 0;
-            padding: 0;
-        }
+        <title>{{ config('app.name', 'Laravel') }}</title>
 
-        header {
-            background: #1e293b;
-            color: #fff;
-            padding: 16px 24px;
-        }
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        header h1 {
-            margin: 0;
-            font-size: 20px;
-        }
+        <!-- Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    </head>
+    <body class="font-sans antialiased">
+        <div class="min-h-screen bg-gray-100">
+            @include('layouts.navigation')
 
-        .container {
-            max-width: 900px;
-            margin: 30px auto;
-            background: #fff;
-            padding: 24px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
+            <!-- Page Heading -->
+            @if (isset($header))
+                <header class="bg-white shadow">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        {{ $header }}
+                    </div>
+                </header>
+            @endif
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 16px;
-        }
-
-        table th, table td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-
-        table th {
-            background: #f1f5f9;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 8px 14px;
-            background: #2563eb;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        .btn-secondary {
-            background: #64748b;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
-        }
-
-        .alert {
-            padding: 12px;
-            background: #dcfce7;
-            color: #166534;
-            border-radius: 6px;
-            margin-bottom: 16px;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 6px;
-            margin-bottom: 14px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-
-        label {
-            font-weight: bold;
-            font-size: 14px;
-        }
-    </style>
-</head>
-<body>
-
-<header>
-    <h1>PMB Online - Sistem Akademik - UAS Fitri(242505025) </h1>
-</header>
-
-<div class="container">
-    @yield('content')
-</div>
-
-</body>
+            <!-- Page Content -->
+            <main>
+                {{ $slot }}
+            </main>
+        </div>
+    </body>
 </html>

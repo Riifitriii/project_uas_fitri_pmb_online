@@ -83,7 +83,6 @@ class MahasiswaController extends Controller
      */
     public function edit(Mahasiswa $mahasiswa)
     {
-        // Jika admin, izinkan edit semua
         if (auth()->user()->role === 'admin') {
             $prodis = Prodi::all();
             $dosens = Dosen::all();
@@ -107,11 +106,8 @@ class MahasiswaController extends Controller
      */
     public function update(Request $request, Mahasiswa $mahasiswa)
     {
-        // Cek akses
         if (auth()->user()->role === 'admin') {
-            // Admin: validasi normal
         } elseif (auth()->user()->role === 'mahasiswa' && $mahasiswa->nama === auth()->user()->name) {
-            // Mahasiswa: validasi normal
         } else {
             abort(403, 'Akses ditolak.');
         }
@@ -147,7 +143,6 @@ class MahasiswaController extends Controller
 
         $mahasiswa->update($data);
 
-        // Redirect sesuai role
         if (auth()->user()->role === 'admin') {
             return redirect()->route('mahasiswa.index')->with('success', 'Data berhasil diperbarui.');
         }
@@ -175,20 +170,12 @@ class MahasiswaController extends Controller
                          ->with('success', 'Data mahasiswa berhasil dihapus.');
     }
 
-    // ─── METHOD BARU: FORM PENDAFTARAN PMB (PUBLIK) ───────────────────────
-
-    /**
-     * Menampilkan form pendaftaran PMB (publik, tanpa login).
-     */
     public function createPMB()
     {
         $prodis = Prodi::all();
         return view('pmb.daftar', compact('prodis'));
     }
 
-    /**
-     * Menyimpan data pendaftaran PMB dari calon mahasiswa (publik).
-     */
     public function storePMB(Request $request)
     {
         $request->validate([
@@ -221,6 +208,31 @@ class MahasiswaController extends Controller
         Mahasiswa::create($data);
 
         return redirect()->route('pmb.daftar')
-                         ->with('success', '✅ Pendaftaran berhasil! Data Anda telah disimpan. Silakan tunggu verifikasi lebih lanjut.');
+                         ->with('success', 'Pendaftaran berhasil! Data Anda telah disimpan. Silakan tunggu verifikasi lebih lanjut.');
+    }
+
+    public function cari(Request $request)
+    {
+        $keyword = $request->get('q');
+        $data = [];
+
+        if (strlen($keyword) >= 3) {
+            $data = Mahasiswa::with('prodi')
+                ->where('nim', 'LIKE', "%{$keyword}%")
+                ->orWhere('nama', 'LIKE', "%{$keyword}%")
+                ->orWhereHas('prodi', fn($q) => $q->where('nama_prodi', 'LIKE', "%{$keyword}%"))
+                ->limit(20)
+                ->get()
+                ->map(function ($m) {
+                    return [
+                        'nim' => $m->nim,
+                        'nama' => $m->nama,
+                        'prodi' => $m->prodi?->nama_prodi ?? '–',
+                    ];
+                })
+                ->toArray();
+        }
+
+        return response()->json($data);
     }
 }

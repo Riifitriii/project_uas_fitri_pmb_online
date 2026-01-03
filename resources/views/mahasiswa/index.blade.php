@@ -11,6 +11,15 @@
                     Tambah Mahasiswa
                 </a>
 
+                <div class="mt-4 mb-4">
+                    <input 
+                    type="text" 
+                    id="searchMahasiswa"
+                     placeholder="Cari NIM / Nama / Prodi..."
+                     class="w-full md:w-1/3 px-4 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+                </div>
+
+
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -62,3 +71,53 @@
         </div>
     </div>
 </x-app-layout>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('searchMahasiswa');
+    const tbody = document.querySelector('tbody');
+
+    let timer;
+
+    input.addEventListener('input', () => {
+        clearTimeout(timer);
+        const keyword = input.value.trim();
+
+        if (keyword.length < 3) return;
+
+        timer = setTimeout(async () => {
+            const res = await fetch(`/mahasiswa/cari?q=${keyword}`);
+            const data = await res.json();
+
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-4 py-6 text-center text-gray-500">
+                            Data tidak ditemukan
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            data.forEach(m => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="px-4 py-4">–</td>
+                        <td class="px-4 py-4">${m.nim}</td>
+                        <td class="px-4 py-4">${m.nama}</td>
+                        <td class="px-4 py-4">–</td>
+                        <td class="px-4 py-4">${m.prodi}</td>
+                        <td class="px-4 py-4">–</td>
+                        <td class="px-4 py-4 text-gray-400">—</td>
+                    </tr>
+                `;
+            });
+        }, 300);
+    });
+});
+</script>
+@endpush

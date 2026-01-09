@@ -42,6 +42,10 @@
                    class="block px-4 py-2 rounded hover:bg-gray-700">
                     Kelola Dosen
                 </a>
+                <a href="{{ route('calon-mahasiswa.index') }}"
+                    class="block px-4 py-2 rounded hover:bg-gray-700">
+                    Calon Mahasiswa
+                </a>
             </nav>
         </aside>
 

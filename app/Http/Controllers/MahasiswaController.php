@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Mahasiswa;
 use App\Models\Prodi;
 use App\Models\Dosen;
+use App\Models\CalonMahasiswa;
+use App\Exports\MahasiswaExport;
+use App\Exports\PmbExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -179,14 +183,11 @@ class MahasiswaController extends Controller
     public function storePMB(Request $request)
     {
         $request->validate([
-            'nim' => 'required|string|max:20|unique:mahasiswa,nim',
-            'nama' => 'required|string|max:100',
-            'angkatan' => 'required|string|max:4',
+            'nama' => 'required|string|max:255',
+            'angkatan' => 'required|string|max:10',
             'prodi_id' => 'required|exists:prodi,id',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ], [
-            'nim.required' => 'Nomor pendaftaran wajib diisi.',
-            'nim.unique' => 'Nomor pendaftaran sudah digunakan.',
             'nama.required' => 'Nama lengkap wajib diisi.',
             'angkatan.required' => 'Angkatan wajib diisi.',
             'prodi_id.required' => 'Program studi wajib dipilih.',
@@ -195,8 +196,7 @@ class MahasiswaController extends Controller
             'foto.mimes' => 'Format gambar harus JPEG, PNG, JPG, atau GIF.',
             'foto.max' => 'Ukuran gambar maksimal 2 MB.',
         ]);
-
-        $data = $request->except('foto');
+        $data = $request->only(['nama', 'angkatan', 'prodi_id']);
 
         if ($request->hasFile('foto')) {
             $file = $request->file('foto');
@@ -204,11 +204,10 @@ class MahasiswaController extends Controller
             $file->storeAs('public/mahasiswa', $filename);
             $data['foto'] = $filename;
         }
-
-        Mahasiswa::create($data);
+        CalonMahasiswa::create($data);
 
         return redirect()->route('pmb.daftar')
-                         ->with('success', 'Pendaftaran berhasil! Data Anda telah disimpan. Silakan tunggu verifikasi lebih lanjut.');
+                        ->with('success', 'Pendaftaran berhasil! Data Anda telah disimpan. Silakan tunggu verifikasi lebih lanjut.');
     }
 
     public function cari(Request $request)
@@ -234,5 +233,15 @@ class MahasiswaController extends Controller
         }
 
         return response()->json($data);
+    }
+    
+    public function export()
+    {
+        return Excel::download(new MahasiswaExport, 'daftar_mahasiswa.xlsx');
+    }
+
+    public function exportPmb()
+    {
+        return Excel::download(new PmbExport, 'daftar_pmb.xlsx');
     }
 }

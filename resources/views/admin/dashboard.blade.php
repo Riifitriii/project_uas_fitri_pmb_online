@@ -16,8 +16,10 @@
                     <div>
                         <h3 class="font-medium">Informasi Penting</h3>
                         <ul class="list-disc list-inside mt-1">
-                            <li>Jumlah Calon Mahasiswa: {{ $totalMahasiswa }}</li>
-                            <li><a href="{{ route('mahasiswa.index') }}" class="text-blue-600 hover:underline">Lihat Semua Pendaftar</a></li>
+                            <li>Jumlah Calon Mahasiswa: {{ $totalCalonMahasiswa }}</li>
+                            <li>Jumlah Mahasiswa Aktif: {{ $totalMahasiswa }}</li>
+                            <li><a href="{{ route('mahasiswa.index') }}" class="text-blue-600 hover:underline">Lihat Semua Mahasiswa</a></li>
+                            <li><a href="{{ route('calon-mahasiswa.index') }}" class="text-blue-600 hover:underline">Lihat Calon Mahasiswa</a></li>
                         </ul>
                     </div>
                 </div>
@@ -25,18 +27,13 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div class="bg-white p-4 rounded shadow">
-                    <h3 class="text-lg font-medium">Total Calon Mahasiswa</h3>
+                    <h3 class="text-lg font-medium">Total Mahasiswa Aktif</h3>
                     <p class="text-2xl font-bold">{{ $totalMahasiswa }}</p>
                 </div>
 
                 <div class="bg-white p-4 rounded shadow">
-                    <h3 class="text-lg font-medium">Jumlah per Prodi</h3>
-                    @foreach($perProdi as $prodi)
-                    <div class="mt-2">
-                        <span>{{ $prodi->nama_prodi }}:</span>
-                        <span class="font-bold">{{ $prodi->mahasiswa_count }}</span>
-                    </div>
-                    @endforeach
+                    <h3 class="text-lg font-medium">Total Calon Mahasiswa</h3>
+                    <p class="text-2xl font-bold">{{ $totalCalonMahasiswa }}</p>
                 </div>
 
                 <!-- Aksi Cepat -->
@@ -76,12 +73,12 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 002 2h2a2 2 0 002-2m-3 7h3m-3 4h3m-6-4h6m-6-4h6" />
                             </svg>
                             Lihat Semua Data
-                            </a>
-                        </div>
+                        </a>
                     </div>
                 </div>
+            </div>
 
-            <div class="bg-blue p-4 rounded shadow">
+            <div class="bg-white p-4 rounded shadow">
                 <h3 class="text-lg font-medium mb-4">Data Terbaru</h3>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">

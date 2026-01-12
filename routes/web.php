@@ -48,6 +48,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // CRUD Mahasiswa
     Route::resource('mahasiswa', MahasiswaController::class);
 
+    // Cetak Kartu
+    Route::get('/mahasiswa/{id}/cetak-kartu', [MahasiswaController::class, 'cetakKartu'])->name('mahasiswa.cetak-kartu');
+    Route::get('/mahasiswa/{id}/cetak-krs', [MahasiswaController::class, 'cetakKrs'])->name('mahasiswa.cetak-krs');
+    
     // CRUD Prodi
     Route::resource('prodi', ProdiController::class)->except(['show']);
 
@@ -58,6 +62,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('calon-mahasiswa', CalonMahasiswaController::class)->only(['index']);
     Route::post('/calon-mahasiswa/{id}/terima', [CalonMahasiswaController::class, 'terima'])->name('calon-mahasiswa.terima');
     Route::patch('/calon-mahasiswa/{id}/tolak', [CalonMahasiswaController::class, 'tolak'])->name('calon-mahasiswa.tolak');
+
+    // Route baru untuk chart data
+    Route::get('/admin/chart-data', [AdminController::class, 'chartData'])->name('admin.chart-data');
 });
 
 require __DIR__.'/auth.php';

@@ -43,8 +43,9 @@
                         Export Excel
                     </a>
 
+                    <!-- Container Scroll Horizontal -->
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="w-full min-w-max divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto</th>
@@ -75,6 +76,12 @@
                                     <td class="px-4 py-4 whitespace-nowrap">{{ $m->dosenPembimbing?->nama ?? '–' }}</td>
                                     <td class="px-4 py-4 whitespace-nowrap">
                                         <a href="{{ route('mahasiswa.edit', $m->id) }}" class="text-blue-600 hover:underline">Edit</a>
+                                        |
+                                        <a href="{{ route('mahasiswa.cetak-kartu', $m->id) }}" class="text-green-600 hover:underline" target="_blank">Cetak Kartu</a>
+                                        |
+                                        <a href="{{ route('mahasiswa.cetak-krs', $m->id) }}" class="text-purple-600 hover:underline" target="_blank">Cetak KRS</a>
+                                        |
+                                        
                                         <form action="{{ route('mahasiswa.destroy', $m->id) }}" method="POST" class="inline ml-2">
                                             @csrf
                                             @method('DELETE')

@@ -9,6 +9,10 @@ use App\Models\CalonMahasiswa;
 use App\Exports\MahasiswaExport;
 use App\Exports\PmbExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use App\Events\MahasiswaCreated; // Tambahkan ini
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -66,7 +70,10 @@ class MahasiswaController extends Controller
             $data['foto'] = $filename;
         }
 
-        Mahasiswa::create($data);
+        $mahasiswa = Mahasiswa::create($data);
+
+        // Trigger event realtime
+        event(new MahasiswaCreated($mahasiswa));
 
         return redirect()->route('mahasiswa.index')
                          ->with('success', 'Data mahasiswa berhasil ditambahkan.');
@@ -243,5 +250,34 @@ class MahasiswaController extends Controller
     public function exportPmb()
     {
         return Excel::download(new PmbExport, 'daftar_pmb.xlsx');
+    }
+
+    public function cetakKartu($id)
+    {
+        $mahasiswa = \App\Models\Mahasiswa::with('prodi')->findOrFail($id);
+
+        $pdf = Pdf::loadView('pdf.kartu-ujian', compact('mahasiswa'));
+        return $pdf->download('kartu-ujian-' . $mahasiswa->nim . '.pdf');
+    }
+
+    public function cetakKrs($id)
+    {
+        $mahasiswa = \App\Models\Mahasiswa::with('prodi')->findOrFail($id);
+
+        // Generate QR Code
+        $qrCode = new QrCode(route('mahasiswa.cetak-krs', $mahasiswa->id));
+        $qrCode->setSize(150);
+        $qrCode->setMargin(10);
+
+        // Use PngWriter to generate data URI
+        $writer = new PngWriter();
+        $result = $writer->write($qrCode);
+        $qrCodePng = $result->getDataUri();
+
+        $pdf = Pdf::loadView('pdf.krs', [
+            'mahasiswa' => $mahasiswa,
+            'qrCodePng' => $qrCodePng
+        ]);
+        return $pdf->download('krs-' . $mahasiswa->nim . '.pdf');
     }
 }

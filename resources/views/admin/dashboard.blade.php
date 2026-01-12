@@ -3,11 +3,11 @@
         <h2 class="font-semibold text-xl text-gray-800">Dashboard Admin</h2>
     </x-slot>
 
-        <!-- Main Content -->
-        <main class="flex-1 p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-semibold">Selamat Datang, Admin!</h1>
-                <div class="text-sm text-gray-600">Welcome {{ auth()->user()->name }}</div>
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Notifikasi Realtime -->
+            <div id="notification-area" class="mb-4 p-2 bg-green-100 text-green-800 rounded hidden">
+                <span id="notification-text"></span>
             </div>
 
             <div class="bg-white p-4 rounded shadow mb-6">
@@ -78,6 +78,11 @@
                 </div>
             </div>
 
+            <!-- Chart -->
+            <div class="bg-white p-4 rounded shadow mb-6">
+                <canvas id="mahasiswaChart" width="400" height="200"></canvas>
+            </div>
+
             <div class="bg-white p-4 rounded shadow">
                 <h3 class="text-lg font-medium mb-4">Data Terbaru</h3>
                 <div class="overflow-x-auto">
@@ -111,6 +116,58 @@
                     </table>
                 </div>
             </div>
-        </main>
+        </div>
     </div>
+
+    <!-- Scripts -->
+    @push('scripts')
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Initialize Pusher
+        const pusher = new Pusher("{{ config('broadcasting.connections.pusher.key') }}", {
+            cluster: "{{ config('broadcasting.connections.pusher.options.cluster') }}",
+            forceTLS: false,
+            wsHost: window.location.hostname,
+            wsPort: 6001,
+            wssPort: 6001,
+        });
+
+        const channel = pusher.subscribe('mahasiswa');
+        channel.bind('MahasiswaCreated', function(data) {
+            // Tampilkan notifikasi
+            document.getElementById('notification-text').textContent = 
+                `Mahasiswa baru ditambahkan: ${data.mahasiswa.nama}`;
+            document.getElementById('notification-area').classList.remove('hidden');
+            
+            // Sembunyikan notifikasi setelah 5 detik
+            setTimeout(() => {
+                document.getElementById('notification-area').classList.add('hidden');
+            }, 5000);
+        });
+
+        // Inisialisasi Chart.js
+        const ctx = document.getElementById('mahasiswaChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Informatika', 'Sistem Informasi', 'Bisnis Digital'],
+                datasets: [{
+                    label: 'Jumlah Mahasiswa',
+                    data: [12, 19, 3], // Tambahkan key 'data:' di sini
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+    @endpush
 </x-app-layout>

@@ -1,7 +1,11 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\MahasiswaController;
+use App\Http\Controllers\API\ProdiController;
+use App\Http\Controllers\API\DosenController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +18,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Public routes
+Route::post('/login', [AuthController::class, 'login']);
+
+// Protected routes (memerlukan token)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/profile', [AuthController::class, 'profile']);
+
+    Route::apiResource('mahasiswa', MahasiswaController::class);
+    Route::apiResource('prodi', ProdiController::class);
+    Route::apiResource('dosen', DosenController::class);
 });

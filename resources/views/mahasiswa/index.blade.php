@@ -8,7 +8,15 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white p-6 rounded shadow">
 
-                <!-- 🔍 Input Pencarian dan Area Hasil -->
+                <!-- Notifikasi Realtime -->
+                <div id="notif-realtime"
+                    class="hidden mb-4 p-3 rounded bg-green-100 text-green-800">
+                    <strong>Realtime:</strong>
+                    <span id="notif-text"></span>
+                </div>
+
+
+                <!-- Input Pencarian dan Area Hasil -->
                 <div class="mb-6 max-w-3xl">
                     <label for="searchInput" class="block text-sm font-medium text-gray-700">
                         Cari Mahasiswa (min. 3 huruf)
@@ -17,7 +25,7 @@
                            placeholder="Cari berdasarkan NIM, Nama, atau Prodi...">
                 </div>
 
-                <!-- 📋 Area Hasil Pencarian -->
+                <!-- Area Hasil Pencarian -->
                 <div id="searchResults" class="hidden mb-6">
                     <h3 class="text-lg font-medium mb-3">Hasil Pencarian:</h3>
                     <div class="overflow-x-auto">
@@ -57,7 +65,7 @@
                                     <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody id="mahasiswaTableBody" class="bg-white divide-y divide-gray-200">
                                 @forelse($mahasiswa as $m)
                                 <tr>
                                     <td class="px-4 py-4 whitespace-nowrap">
@@ -156,6 +164,47 @@
             }, 300);
         });
     });
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        if (typeof Echo === 'undefined') {
+            console.warn('Echo belum aktif. Pastikan npm run dev sudah dijalankan.');
+            return;
+        }
+
+        Echo.channel('mahasiswa')
+            .listen('MahasiswaCreated', (e) => {
+                console.log('Realtime Mahasiswa:', e.mahasiswa);
+
+                // 🔔 tampilkan notif
+                const notifBox = document.getElementById('notif-realtime');
+                const notifText = document.getElementById('notif-text');
+
+                notifText.innerText = `Mahasiswa baru ditambahkan: ${e.mahasiswa.nama}`;
+                notifBox.classList.remove('hidden');
+
+                // OPTIONAL: tambahin ke tabel TANPA reload
+                const tbody = document.getElementById('mahasiswaTableBody');
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-4 py-4">
+                        <span>–</span>
+                    </td>
+                    <td class="px-4 py-4">${e.mahasiswa.nim}</td>
+                    <td class="px-4 py-4">${e.mahasiswa.nama}</td>
+                    <td class="px-4 py-4">${e.mahasiswa.angkatan}</td>
+                    <td class="px-4 py-4">${e.mahasiswa.prodi?.nama_prodi ?? '–'}</td>
+                    <td class="px-4 py-4">–</td>
+                    <td class="px-4 py-4 text-sm text-gray-500">
+                        Reload untuk aksi
+                    </td>
+                `;
+
+                tbody.prepend(row);
+            });
+        });
     </script>
     @endpush
 </x-app-layout>
